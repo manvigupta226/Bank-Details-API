@@ -8,8 +8,6 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.json({ message: "Hello World" }));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
-
 const Sequelize = require("sequelize");
 
 const sequelize = new Sequelize(
@@ -18,17 +16,17 @@ const sequelize = new Sequelize(
 
 // TO TEST THE CONNECTION
 
-// sequelize
+sequelize
 
-//   .authenticate()
+  .authenticate()
 
-//   .then(() => {
-//     console.log("Connection has been established successfully.");
-//   })
+  .then(() => {
+    console.log("Connection has been established successfully.");
+  })
 
-//   .catch((err) => {
-//     console.error("Unable to connect to the database:", err);
-//   });
+  .catch((err) => {
+    console.error("Unable to connect to the database:", err);
+  });
 
 const Banks = sequelize.define(
   "banks",
@@ -60,62 +58,32 @@ const Banks = sequelize.define(
   }
 );
 
-const Branches = sequelize.define(
-  "branches",
-  {
-    ifsc: {
-      type: DataTypes.STRING(11),
-      allowNull: false,
-      primaryKey: true,
-    },
+app.post("/banks", async (req, res) => {
+  try {
+    const newBank = new Banks(req.body);
 
-    bank_id: {
-      type: DataTypes.BIGINT,
-      allowNull: true,
-      references: {
-        model: "banks",
-        key: "id",
-      },
-    },
+    await newBank.save();
 
-    branch: {
-      type: DataTypes.STRING(74),
-      allowNull: true,
-    },
-
-    address: {
-      type: DataTypes.STRING(195),
-      allowNull: true,
-    },
-
-    city: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-
-    district: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
-
-    state: {
-      type: DataTypes.STRING(26),
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    tableName: "branches",
-    schema: "public",
-    timestamps: false,
-    indexes: [
-      {
-        name: "branches_ifsc_pkey",
-        unique: true,
-        fields: [{ name: "ifsc" }],
-      },
-    ],
+    res.json({ banks: newBank });
+  } catch (error) {
+    console.error(error);
   }
-);
+});
 
-User.sync({ force: true });
+app.get("/banks/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const banks = await Banks.findAll({
+      where: {
+        id: id,
+      },
+    });
+
+    res.json({ banks });
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
