@@ -18,14 +18,104 @@ const sequelize = new Sequelize(
 
 // TO TEST THE CONNECTION
 
-sequelize
+// sequelize
 
-  .authenticate()
+//   .authenticate()
 
-  .then(() => {
-    console.log("Connection has been established successfully.");
-  })
+//   .then(() => {
+//     console.log("Connection has been established successfully.");
+//   })
 
-  .catch((err) => {
-    console.error("Unable to connect to the database:", err);
-  });
+//   .catch((err) => {
+//     console.error("Unable to connect to the database:", err);
+//   });
+
+const Banks = sequelize.define(
+  "banks",
+  {
+    name: {
+      type: Sequelize.STRING(49),
+
+      allowNull: true,
+    },
+
+    id: {
+      type: Sequelize.BIGINT,
+      allowNull: false,
+      primaryKey: true,
+    },
+  },
+  {
+    sequelize,
+    tableName: "banks",
+    schema: "public",
+    timestamps: false,
+    indexes: [
+      {
+        name: "banks_id_pkey",
+        unique: true,
+        fields: [{ name: "id" }],
+      },
+    ],
+  }
+);
+
+const Branches = sequelize.define(
+  "branches",
+  {
+    ifsc: {
+      type: DataTypes.STRING(11),
+      allowNull: false,
+      primaryKey: true,
+    },
+
+    bank_id: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      references: {
+        model: "banks",
+        key: "id",
+      },
+    },
+
+    branch: {
+      type: DataTypes.STRING(74),
+      allowNull: true,
+    },
+
+    address: {
+      type: DataTypes.STRING(195),
+      allowNull: true,
+    },
+
+    city: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+
+    district: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+
+    state: {
+      type: DataTypes.STRING(26),
+      allowNull: true,
+    },
+  },
+  {
+    sequelize,
+    tableName: "branches",
+    schema: "public",
+    timestamps: false,
+    indexes: [
+      {
+        name: "branches_ifsc_pkey",
+        unique: true,
+        fields: [{ name: "ifsc" }],
+      },
+    ],
+  }
+);
+
+User.sync({ force: true });
