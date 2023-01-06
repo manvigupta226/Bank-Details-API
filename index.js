@@ -58,13 +58,11 @@ const Banks = sequelize.define(
   }
 );
 
-app.post("/banks", async (req, res) => {
+app.get("/banks", async (req, res) => {
   try {
-    const newBank = new Banks(req.body);
+    const banks = await Banks.findAll({});
 
-    await newBank.save();
-
-    res.json({ banks: newBank });
+    res.json({ banks });
   } catch (error) {
     console.error(error);
   }
